@@ -40,7 +40,7 @@ export default function MainPage() {
   }, [keyword, page]); // 검색어 또는 페이지 변경될 때 실행
 
   // 페이지 변경 핸들러
-  const handlePageChange = (_, value) => {
+  const handlePageChange = (value) => {
     setPage(value);
   };
 
