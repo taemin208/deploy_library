@@ -84,14 +84,15 @@ Use a visually appealing and professional style suitable for a published book.`;
   const handleCreateBook = async () => {
     const payload = {
       title,
-      author,
       publisher,
+      author,
       genre,
       tag,
-      price,
-      coverImageUrl,
-      registrationDate: new Date().toISOString().split("T")[0], // yyyy-mm-dd
+      coverImage: coverImageUrl,   // ⭐ 필드명 변경!
+      price: Number(price),        // ⭐ 숫자로 변환 필수
+      registrationDate: new Date().toISOString().split("T")[0],
     };
+
 
     console.log("📌 등록 요청 Body:", payload);
 
