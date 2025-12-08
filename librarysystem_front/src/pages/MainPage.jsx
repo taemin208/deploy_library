@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, TextField, Button } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Box, Grid } from "@mui/material";
 import BookCard from "../books/BookCard";
 
 // 테스트용 목업 데이터
-
 const MOCK_BOOKS = [
     {
         id: 1,
