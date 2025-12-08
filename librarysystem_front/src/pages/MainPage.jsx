@@ -10,7 +10,6 @@ export default function MaunPage() {
     const loadBooks = async () => {
       try {
         const response = await fetchBooks();
-        console.log("도서 목록 응답:", response.data);
         console.log("요청 목록 :", response.data);
         setBooks(response.data); 
       } catch (err) {
@@ -25,14 +24,17 @@ export default function MaunPage() {
     <Box>
       <h2>도서목록</h2>
       {/* 도서 목록 그리드 구현 (MUI Grid 핵심) */}
-      <Grid container spacing={3}>
-        {books.map((book) => (
-          <Grid key={book.id}>
-            {/* 개별 아이템 컴포넌트 */}
-            <BookCard book={book} />
+      {books.length === 0 ? (
+        <p>검색 결과가 없습니다.</p>
+        ) : (
+          <Grid container spacing={3}>
+            {books.map((book) => (
+              <Grid key={book.id}>
+                <BookCard book={book} />
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+      )}
     </Box>
   );
 }
