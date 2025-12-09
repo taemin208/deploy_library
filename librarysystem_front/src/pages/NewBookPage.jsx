@@ -24,45 +24,48 @@ export default function NewBookPage() {
   const [coverImageUrl, setCoverImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ===============================
-  // 📌  AI 이미지 생성 (BE는 imageUrl 단독 반환)
-  // ===============================
-  const handleGenerateAICover = async () => {
-    if (!description.trim()) {
-      alert("책 소개(description)를 입력해야 합니다.");
-      return;
-    }
+    // ===============================
+    // 📌  AI 이미지 생성 (title + prompt 구조로 전송)
+    // ===============================
+    const handleGenerateAICover = async () => {
+      if (!title.trim()) {
+        alert("책 제목을 입력해야 합니다.");
+        return;
+      }
 
-    if (description.length > 1000) {
-      alert("설명은 최대 1000자까지 입력할 수 있습니다.");
-      return;
-    }
+      if (!description.trim()) {
+        alert("책 소개(description)를 입력해야 합니다.");
+        return;
+      }
 
-     setLoading(true);
+      if (description.length > 1000) {
+        alert("설명은 최대 1000자까지 입력할 수 있습니다.");
+        return;
+      }
+
+      setLoading(true);
       try {
-        // 🔥 title + description 모두 prompt로 전달
-        const prompt = `${title}. ${description}`;
+        // 🔥 title + prompt 를 BE에 별도로 전달
+        const result = await bookServices.generateBookImage({
+          title: title,
+          prompt: description
+        });
 
-        const result = await bookServices.generateBookImage(prompt);
-
-        // 기존 로직 유지
+        // 기존 에러 처리 유지
         if (!result?.imageUrl || result.imageUrl.startsWith("ERROR")) {
           alert("이미지 생성 실패: " + result.imageUrl);
           return;
         }
 
+        setCoverImageUrl(result.imageUrl);
 
-      // 성공 시 이미지 경로 저장
-      setCoverImageUrl(result.imageUrl);
-
-    } catch (err) {
-      console.error("AI 이미지 생성 오류:", err);
-      alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+      } catch (err) {
+        console.error("AI 이미지 생성 오류:", err);
+        alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+      } finally {
+        setLoading(false);
+      }
+    };
   // ===============================
   // 📌 도서 등록
   // ===============================
