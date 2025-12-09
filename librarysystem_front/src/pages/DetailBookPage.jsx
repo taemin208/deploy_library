@@ -8,15 +8,15 @@ export default function DetailBookPage() {
   const { bookId } = useParams();
 
   const [book, setBook] = useState(null);
-  const [loanId, setLoanId] = useState(null);
+  const [loanId, setLoanId] = useState(null); // rentalId → loanId로 변경
   const [loading, setLoading] = useState(false);
-
   // 🔐 관리자 여부
   const role = localStorage.getItem("role");
   const isAdmin = role === "ADMIN";
 
   // =======================================
   // 📌 도서 상세 조회
+  // GET /api/books/{bookId}
   // =======================================
   useEffect(() => {
     const loadDetail = async () => {
@@ -34,7 +34,16 @@ export default function DetailBookPage() {
   if (!book) return <Typography>Loading...</Typography>;
 
   // =======================================
-  // 📌 대여
+  // ⚠ JWT 관련 설명
+  // 현재 memberId는 백엔드에서 JWT 미구현 상태이기 때문에
+  // FE에서 임시로 "1"을 전달하는 구조.
+  // JWT가 완성되면 memberId는 보내지 않고
+  // Authorization 헤더만 보내면 됨.
+  // =======================================
+
+  // =======================================
+  // 📌 대여 (POST /api/loans)
+  // 응답: { loanId, dueDate }
   // =======================================
   const handleRent = async () => {
     try {
@@ -42,11 +51,11 @@ export default function DetailBookPage() {
 
       const res = await bookServices.createLoan({
         bookId: Number(bookId),
-        memberId: "1"
+        memberId: "1" // ⭐ 임시. JWT 적용 후 삭제됨
       });
 
-      setLoanId(res.loanId);
-      setBook((prev) => ({ ...prev, stockcount: 0 }));
+      setLoanId(res.loanId); // loanId 저장
+      setBook((prev) => ({ ...prev, stockcount: 0 })); // UI 업데이트 (재조회 전 임시 반영)
 
     } catch (err) {
       console.error("대여 실패:", err);
@@ -56,8 +65,11 @@ export default function DetailBookPage() {
     }
   };
 
+
+
   // =======================================
-  // 📌 반납
+  // 📌 반납 (PATCH /api/loans/{loanId}/return)
+  // 응답: { msg, penalty }
   // =======================================
   const handleReturn = async () => {
     try {
@@ -66,7 +78,7 @@ export default function DetailBookPage() {
       await bookServices.returnRental(loanId);
 
       setLoanId(null);
-      setBook((prev) => ({ ...prev, stockcount: 1 }));
+      setBook((prev) => ({ ...prev, stockcount: 1 })); // UI 업데이트 (재조회 전 임시 반영)
 
     } catch (err) {
       console.error("반납 실패:", err);
@@ -116,42 +128,56 @@ export default function DetailBookPage() {
       </Paper>
 
       <Paper variant="outlined" sx={{ p: 2 }}>
-        <Typography fontWeight="bold">재고</Typography>
-        <Typography>{book.stockcount}</Typography>
+        <Typography fontWeight="bold">가격</Typography>
+        <Typography>{book.price} 원</Typography>
       </Paper>
 
-      <Grid container spacing={2}>
-        {/* 대여 버튼 */}
-        {book.stockcount > 0 && (
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              fullWidth
-              disabled={loading}
-              onClick={handleRent}
-            >
-              대여하기
-            </Button>
-          </Grid>
-        )}
+      <Paper variant="outlined" sx={{ p: 2 }}>
+        <Typography fontWeight="bold">책 소개</Typography>
+        <Typography>{book.description}</Typography>
+      </Paper>
 
-        {/* 반납 버튼 */}
-        {loanId && (
-          <Grid item xs={12}>
-            <Button
-              variant="outlined"
-              color="secondary"
-              fullWidth
-              disabled={loading}
-              onClick={handleReturn}
-            >
-              반납하기
-            </Button>
-          </Grid>
-        )}
+      {/* =======================
+          📌 대출 가능 / 불가 표시
+      ======================== */}
+      <Typography
+        fontWeight="bold"
+        sx={{ fontSize: "18px", textAlign: "center" }}
+      >
+        {book.stockcount === 1 ? "대출 가능" : "대출 불가"}
+      </Typography>
+
+      {/* =======================
+          📌 대여 / 반납 버튼
+      ======================== */}
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <Button
+            fullWidth
+            variant="contained"
+            color="success"
+            disabled={book.stockcount === 0 || loading}
+            onClick={handleRent}
+          >
+            대출
+          </Button>
+        </Grid>
+
+        <Grid item xs={6}>
+          <Button
+            fullWidth
+            variant="contained"
+            color="error"
+            disabled={!loanId || loading}
+            onClick={handleReturn}
+          >
+            반납
+          </Button>
+        </Grid>
       </Grid>
 
-      {/* 🔧 관리자 전용 수정 버튼 */}
+
+      {/* 🔧 관리자만 수정 버튼 노출 */}
       {isAdmin && (
         <Button
           variant="contained"
@@ -161,6 +187,11 @@ export default function DetailBookPage() {
           수정하기
         </Button>
       )}
+
+      {/* 뒤로가기 */}
+      <Button variant="text" onClick={() => navigate(-1)}>
+        뒤로가기
+      </Button>
     </Box>
   );
 }
