@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function Sidebar() {
+export default function Slidebar() {
   const sidebarStyle = {
     display: "flex",
     flexDirection: "column",
