@@ -101,14 +101,15 @@ export async function deleteBook(bookId) {
 
 // ======================= AI 이미지 생성 =======================
 
-// FE는 prompt만 보내고, 백엔드는 저장된 이미지 URL만 반환
-// Body: { prompt }
-// Res: { imageUrl: "/img/book/1/cover.png" }
-export async function generateBookImage(prompt) {
-  const res = await api.post("/api/images/generate", { prompt });
+// Body: { title, prompt }
+// Res: { imageUrl: "..." }
+export async function generateBookImage({ title, prompt }) {
+  const res = await api.post("/api/images/generate", {
+    title,
+    prompt
+  });
   return res.data; // { imageUrl }
 }
-
 // ======================= 대여/반납 Rentals & Loans =======================
 
 // 도서 대여 POST /api/loans
