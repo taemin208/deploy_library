@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - cd librarysystem_front
+      - npm ci
+  build:
+    commands:
+      - cd librarysystem_front
+      - npm run build
+
+artifacts:
+  files:
+    - '**/*'
