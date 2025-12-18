@@ -7,9 +7,9 @@ phases:
     commands:
       - cd librarysystem_front
       - npm ci
+
   build:
     commands:
-      - cd librarysystem_front
       - npm run build
 
 artifacts:
